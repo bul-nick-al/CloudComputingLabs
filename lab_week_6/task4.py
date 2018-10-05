@@ -1,0 +1,25 @@
+import boto3
+
+client = boto3.client('sqs', 'us-east-1')
+queue_url = client.get_queue_url(
+    QueueName='lab6_queue',
+)['QueueUrl']
+
+print(queue_url)
+
+for i in range(1, 100):
+    response = client.send_message(
+      QueueUrl=queue_url,
+      MessageBody='This is the message with id '+str(i),
+    )
+
+while True:
+    num_max_number_messages = 10
+    messages = client.receive_message(
+        QueueUrl=queue_url,
+        MaxNumberOfMessages=num_max_number_messages)
+    if 'Messages' not in messages.keys():
+        print("bye")
+        break
+    for message in messages['Messages']:
+        print(message['Body'])
